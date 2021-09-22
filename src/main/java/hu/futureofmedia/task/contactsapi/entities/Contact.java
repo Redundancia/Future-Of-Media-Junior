@@ -32,7 +32,6 @@ public class Contact {
     private String phoneNumber;
 
     @ManyToOne
-    @Column(nullable = false)
     private Company company;
 
     //TODO strip html tags in controller/service Jsoup.parse(html).text();
