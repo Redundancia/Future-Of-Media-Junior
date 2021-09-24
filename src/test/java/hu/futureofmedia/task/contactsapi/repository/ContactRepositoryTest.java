@@ -11,6 +11,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.validation.ConstraintViolationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,7 +41,7 @@ public class ContactRepositoryTest {
 
         contactRepository.save(mattiaCorvino);
         List<Contact> contactList = contactRepository.findAll();
-        assertThat(contactList).hasSize(1);
+        assertThat(contactList).hasSize(1).contains(mattiaCorvino);
     }
 
     @Test
@@ -53,5 +55,19 @@ public class ContactRepositoryTest {
                 .build();
 
         assertThrows(DataIntegrityViolationException.class, () -> contactRepository.save(mattiaCorvino));
+    }
+
+    @Test
+    public void exceptionThrown_addContactWithWrongValidatedField() {
+        Contact mattiaCorvino = Contact.builder()
+                .firstName("Mátyás")
+                .lastName("Hunyadi")
+                .email("matyas.hu")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .status(Status.ACTIVE)
+                .build();
+
+        assertThrows(ConstraintViolationException.class, () -> contactRepository.save(mattiaCorvino));
     }
 }
