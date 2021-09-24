@@ -1,19 +1,24 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import lombok.*;
 
+import javax.persistence.*;
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class Company {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    public Long getId() {
-        return id;
-    }
+    @OneToMany(mappedBy = "company")
+    @EqualsAndHashCode.Exclude
+    @Singular
+    private Set<Contact> contacts;
 
-    public String getName() {
-        return name;
-    }
 }
