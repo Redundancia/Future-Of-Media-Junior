@@ -24,7 +24,7 @@ public class ContactRepositoryTest {
     private ContactRepository contactRepository;
 
     @Test
-    public void saveOne() {
+    public void contactPersists_withValidDetails() {
         Contact mattiaCorvino = Contact.builder()
                 .firstName("Mátyás")
                 .lastName("Hunyadi")
@@ -35,9 +35,7 @@ public class ContactRepositoryTest {
                 .build();
 
         contactRepository.save(mattiaCorvino);
-
         List<Contact> contactList = contactRepository.findAll();
-
-        assertThat(contactList).hasSize(1).anyMatch(contact -> contact.getFirstName().equals("Mátyás"));
+        assertThat(contactList).hasSize(1);
     }
 }
