@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS company CASCADE;
 DROP TABLE IF EXISTS contact;
+DROP TYPE IF EXISTS status;
 
 create table company
 (
@@ -7,6 +8,8 @@ create table company
     name varchar(200) not null,
     constraint pk_company primary key (id)
 );
+
+CREATE TYPE status AS ENUM ('ACTIVE', 'DELETED');
 
 create table contact
 (
@@ -16,7 +19,7 @@ create table contact
     email text not null,
     phone_number varchar(30),
     company_id INTEGER REFERENCES company(id),
-    status varchar not null,
+    status status not null,
     comment text,
     creation_date TIMESTAMP WITHOUT TIME ZONE,
     last_updated_date TIMESTAMP WITHOUT TIME ZONE,
