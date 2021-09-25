@@ -33,7 +33,7 @@ public class ContactController {
     @GetMapping("/{contactId}")
     public ResponseEntity<ContactDetailsDTO> findById(@PathVariable String contactId) {
         Contact contact =contactService.findById(contactId).orElse(null);
-        return contact == null ? new ResponseEntity<>(null, HttpStatus.BAD_REQUEST) :
+        return contact == null ? new ResponseEntity<>(null, HttpStatus.OK) :
                 new ResponseEntity<>(new ContactDetailsDTO(contact), HttpStatus.OK);
     }
 }
