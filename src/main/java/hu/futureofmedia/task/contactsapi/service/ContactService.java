@@ -11,13 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -53,7 +48,7 @@ public class ContactService {
         return contactRepository.findById(Long.parseLong(contactId));
     }
 
-    public ResponseEntity<String> validateAndSave(@Valid @RequestBody ContactNewDTO contactNewDTO) {
+    public ResponseEntity<String> validateAndSave(@RequestBody ContactNewDTO contactNewDTO) {
         Optional<Company> contactCompany = companyRepository.findById(contactNewDTO.getCompanyId());
         if (contactCompany.isEmpty()) {
             return new ResponseEntity<>("Invalid company input", HttpStatus.BAD_REQUEST);
@@ -66,6 +61,12 @@ public class ContactService {
             if (!matcher.matches()) {
                 return new ResponseEntity<>("Invalid phone number, try E-164 format", HttpStatus.BAD_REQUEST);
             }
+        }
+        if (contactNewDTO.getFirstName() == null) {
+            return new ResponseEntity<>("Invalid name", HttpStatus.BAD_REQUEST);
+        }
+        if (contactNewDTO.getLastName() == null) {
+            return new ResponseEntity<>("Invalid name", HttpStatus.BAD_REQUEST);
         }
         Contact contactToAdd = Contact.builder()
                 .firstName(contactNewDTO.getFirstName())
@@ -82,16 +83,4 @@ public class ContactService {
         return ResponseEntity.ok("Valid contact");
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
 }
