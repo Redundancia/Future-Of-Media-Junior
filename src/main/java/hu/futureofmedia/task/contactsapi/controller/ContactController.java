@@ -17,7 +17,7 @@ public class ContactController {
     private final ContactService contactService;
 
     @Autowired
-    public ContactController(ContactService contactService) {
+    public ContactController(ContactService contactService ) {
         this.contactService = contactService;
     }
 
@@ -25,5 +25,4 @@ public class ContactController {
     public List<ContactDTO> getAllActiveContacts(@PathVariable String offSet) {
         return contactService.findAllByActiveStatus(Integer.parseInt(offSet)-1);
     }
-
 }
