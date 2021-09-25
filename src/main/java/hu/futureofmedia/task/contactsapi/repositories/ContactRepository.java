@@ -11,7 +11,11 @@ import java.util.List;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
     @Query(
-            value = "SELECT * FROM contact WHERE contact.status = 'ACTIVE' ORDER BY contact.first_name, contact.last_name LIMIT 10 OFFSET :offSet*10",
+            value = "SELECT * " +
+                    "FROM contact " +
+                    "WHERE contact.status = 'ACTIVE' " +
+                    "ORDER BY contact.first_name, contact.last_name " +
+                    "LIMIT 10 OFFSET :offSet*10",
             nativeQuery = true)
     List<Contact> findAllByActiveStatus(int offSet);
 }

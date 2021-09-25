@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class ContactDTO {
+public class ContactFindAllActiveDTO {
 
     private String fullName;
 
@@ -19,7 +19,7 @@ public class ContactDTO {
 
     private Long companyId;
 
-    public ContactDTO(Long contactId, String firstName, String lastName, String email, String phoneNumber, Company company) {
+    public ContactFindAllActiveDTO(Long contactId, String firstName, String lastName, String email, String phoneNumber, Company company) {
         this.fullName = firstName + " " + lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
