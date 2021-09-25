@@ -1,6 +1,7 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import hu.futureofmedia.task.contactsapi.entities.contact.Contact;
 import lombok.*;
 
 import javax.persistence.*;
