@@ -1,5 +1,7 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import hu.futureofmedia.task.contactsapi.entities.contact.Contact;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,6 +21,7 @@ public class Company {
     @OneToMany(mappedBy = "company")
     @EqualsAndHashCode.Exclude
     @Singular
+    @JsonIgnoreProperties("company")
     private Set<Contact> contacts;
 
 }
