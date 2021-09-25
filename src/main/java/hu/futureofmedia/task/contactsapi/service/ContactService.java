@@ -1,11 +1,11 @@
 package hu.futureofmedia.task.contactsapi.service;
 
-import hu.futureofmedia.task.contactsapi.entities.Contact;
+import hu.futureofmedia.task.contactsapi.entities.contact.Contact;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 public class ContactService {
@@ -17,7 +17,7 @@ public class ContactService {
         this.contactRepository = contactRepository;
     }
 
-    public List<Contact> findAll() {
-        return contactRepository.findAll();
+    public Set<Contact> findAllByActiveStatus() {
+        return contactRepository.findAllByActiveStatus();
     }
 }

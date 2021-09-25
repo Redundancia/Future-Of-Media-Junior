@@ -1,7 +1,7 @@
 package hu.futureofmedia.task.contactsapi.repository;
 
-import hu.futureofmedia.task.contactsapi.entities.Contact;
-import hu.futureofmedia.task.contactsapi.entities.Status;
+import hu.futureofmedia.task.contactsapi.entities.contact.Contact;
+import hu.futureofmedia.task.contactsapi.entities.contact.Status;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
