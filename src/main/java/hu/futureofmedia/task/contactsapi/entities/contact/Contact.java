@@ -30,14 +30,12 @@ public class Contact {
     @Column(nullable = false)
     private String email;
 
-    //TODO regex the phone number ^\+?\d{10,14}$
     private String phoneNumber;
 
     @ManyToOne
     @JsonIgnoreProperties("contacts")
     private Company company;
 
-    //TODO strip html tags in controller/service Jsoup.parse(html).text();
     private String comment;
 
     @Enumerated(EnumType.STRING)
