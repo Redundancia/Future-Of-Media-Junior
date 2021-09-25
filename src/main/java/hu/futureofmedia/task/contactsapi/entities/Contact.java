@@ -1,5 +1,6 @@
 package hu.futureofmedia.task.contactsapi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -32,6 +33,7 @@ public class Contact {
     private String phoneNumber;
 
     @ManyToOne
+    @JsonIgnoreProperties("contacts")
     private Company company;
 
     //TODO strip html tags in controller/service Jsoup.parse(html).text();
