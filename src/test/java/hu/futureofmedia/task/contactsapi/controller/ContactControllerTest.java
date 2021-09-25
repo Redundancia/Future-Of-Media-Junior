@@ -8,12 +8,12 @@ import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 import org.junit.jupiter.api.Test;
@@ -82,5 +82,48 @@ class ContactControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].fullName").value("Contact One"))
                 .andExpect(jsonPath("$[1].fullName").value("Contact Two"));
+    }
+
+    @Test
+    void findById_returnsContactWhenValidId() throws Exception {
+        Company company1 = Company.builder().name("company1").build();
+        Contact contact1 = Contact.builder()
+                .firstName("Contact")
+                .lastName("One")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company1)
+                .email("contact@one.hu")
+                .status(Status.ACTIVE)
+                .build();
+        mockContactRepository.save(contact1);
+
+        Mockito.when(mockContactRepository.findById(1L)).thenReturn(Optional.of(contact1));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/contact/{id}", "1"))
+                .andDo(print())
+                .andExpect(jsonPath("email").value("contact@one.hu"));
+    }
+
+    @Test
+    void findById_returnsNullWhenInValidId() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+        Contact contact2 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.ACTIVE)
+                .build();
+        mockContactRepository.save(contact2);
+
+        Mockito.when(mockContactRepository.findById(2L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/contact/{id}", "2"))
+                .andDo(print())
+                .andExpect(jsonPath("$").doesNotExist());
+
     }
 }
