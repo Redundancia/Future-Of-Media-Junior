@@ -6,8 +6,8 @@ import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ContactService {
@@ -19,9 +19,9 @@ public class ContactService {
         this.contactRepository = contactRepository;
     }
 
-    public Set<ContactDTO> findAllByActiveStatus() {
-        Set<Contact> activeContacts= contactRepository.findAllByActiveStatus();
-        Set<ContactDTO> DTOs = new HashSet<>();
+    public List<ContactDTO> findAllByActiveStatus(int offSet) {
+        List<Contact> activeContacts= contactRepository.findAllByActiveStatus(offSet);
+        List<ContactDTO> DTOs = new ArrayList<>();
         activeContacts.forEach(
                 contact -> DTOs.add(new ContactDTO(contact.getId(), contact.getFirstName(),
                         contact.getLastName(),

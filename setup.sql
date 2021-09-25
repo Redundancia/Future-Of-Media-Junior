@@ -47,7 +47,7 @@ values (
 
 insert into contact (first_name, last_name, email, phone_number, company_id, status, comment, creation_date, last_updated_date)
 values (
-           'Matteo',
+           'Aatteo',
            'Corvini',
            'matteo@king.com',
            '0630555555',
