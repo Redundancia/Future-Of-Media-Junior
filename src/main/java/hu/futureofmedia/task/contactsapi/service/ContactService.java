@@ -14,12 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 
 @Component
@@ -51,8 +48,45 @@ public class ContactService {
         return contactRepository.findById(Long.parseLong(contactId));
     }
 
-    public ResponseEntity<String> validateAndSave(@RequestBody ContactNewDTO contactNewDTO)  {
+    public ResponseEntity<String> validateAndSave(ContactNewDTO contactNewDTO)  {
         Optional<Company> contactCompany = companyRepository.findById(contactNewDTO.getCompanyId());
+
+        ResponseEntity<String> returnResponse= isContactDetailValid(contactNewDTO, contactCompany);
+
+        if (returnResponse.getStatusCodeValue() != 200) return returnResponse;
+
+        Contact contactToAdd = Contact.builder()
+                .firstName(contactNewDTO.getFirstName())
+                .lastName(contactNewDTO.getLastName())
+                .email(contactNewDTO.getEmail())
+                .phoneNumber(contactNewDTO.getPhoneNumber())
+                .company(contactCompany.get())
+                .comment(Jsoup.parse(contactNewDTO.getComment()).text())
+                .status(Status.ACTIVE)
+                .creationDate(LocalDateTime.now())
+                .lastUpdatedDate(LocalDateTime.now())
+                .build();
+        contactRepository.save(contactToAdd);
+        return returnResponse;
+    }
+    //TODO maybe move this to UTIL?
+    private boolean isContactPhoneNumberValid(String phoneNumber) {
+        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+        try {
+            Phonenumber.PhoneNumber phone = phoneNumberUtil.parse(phoneNumber,
+                    Phonenumber.PhoneNumber.CountryCodeSource.UNSPECIFIED.name());
+            return phoneNumberUtil.isValidNumber(phone);
+        } catch (NumberParseException numberParseException) {
+            return false;
+        }
+    }
+
+    //TODO maybe move this to UTIL?
+    private boolean isContactCompanyValid(Optional<Company> contactCompany) {
+        return contactCompany.isEmpty();
+    }
+
+    private ResponseEntity<String> isContactDetailValid(ContactNewDTO contactNewDTO, Optional<Company> contactCompany) {
 
         if (isContactCompanyValid(contactCompany)) {
             return new ResponseEntity<>("Invalid company input", HttpStatus.BAD_REQUEST);
@@ -70,43 +104,31 @@ public class ContactService {
         if (contactNewDTO.getLastName() == null) {
             return new ResponseEntity<>("Invalid name", HttpStatus.BAD_REQUEST);
         }
-        Contact contactToAdd = Contact.builder()
-                .firstName(contactNewDTO.getFirstName())
-                .lastName(contactNewDTO.getLastName())
-                .email(contactNewDTO.getEmail())
-                .phoneNumber(contactNewDTO.getPhoneNumber())
-                .company(contactCompany.get())
-                .comment(Jsoup.parse(contactNewDTO.getComment()).text())
-                .status(Status.ACTIVE)
-                .creationDate(LocalDateTime.now())
-                .lastUpdatedDate(LocalDateTime.now())
-                .build();
-        Contact newContact = contactRepository.save(contactToAdd);
         return ResponseEntity.ok("Valid contact");
     }
 
-    private boolean isContactPhoneNumberValid(String phoneNumber) {
-        String regex = "^\\+?\\d{10,14}$";
-        Pattern pt = Pattern.compile(regex);
-        Matcher matcher = pt.matcher(phoneNumber);
-        if (!matcher.matches()) {
-            return false;
-        }
-        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-        try {
-            Phonenumber.PhoneNumber phoneNumber2 = phoneNumberUtil.parse(phoneNumber,
-                    Phonenumber.PhoneNumber.CountryCodeSource.UNSPECIFIED.name());
-            if (!phoneNumberUtil.isValidNumber(phoneNumber2)) {
-                return false;
-            }
-        } catch (NumberParseException numberParseException) {
-            return false;
-        }
-        return true;
-    }
+    public ResponseEntity<String> validateAndUpdate(Long contactId, ContactNewDTO contactNewDTO) {
+        Optional<Company> contactCompany = companyRepository.findById(contactNewDTO.getCompanyId());
 
-    private boolean isContactCompanyValid(Optional<Company> contactCompany) {
-        return contactCompany.isEmpty();
-    }
+        Optional<Contact> contactToUpdate = contactRepository.findById(contactId);
 
+        if(contactRepository.findById(contactId).isEmpty()) return new ResponseEntity<>("Contact to update doesn't exist", HttpStatus.BAD_REQUEST);
+
+        ResponseEntity<String> returnResponse= isContactDetailValid(contactNewDTO, contactCompany);
+
+        if (returnResponse.getStatusCodeValue() != 200) return returnResponse;
+
+        Contact contact = contactToUpdate.get();
+
+        contact.setFirstName(contactNewDTO.getFirstName());
+        contact.setLastName(contactNewDTO.getLastName());
+        contact.setEmail(contactNewDTO.getEmail());
+        contact.setPhoneNumber(contactNewDTO.getPhoneNumber());
+        contact.setCompany(contactCompany.get());
+        contact.setComment(Jsoup.parse(contactNewDTO.getComment()).text());
+        contact.setLastUpdatedDate(LocalDateTime.now());
+
+        contactRepository.save(contact);
+        return returnResponse;
+    }
 }

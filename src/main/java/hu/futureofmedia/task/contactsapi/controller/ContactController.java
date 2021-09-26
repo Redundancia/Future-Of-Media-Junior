@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -37,7 +38,12 @@ public class ContactController {
 
     @PostMapping("/new")
     @ResponseBody
-    public ResponseEntity<String> addNewContact(@RequestBody ContactNewDTO contactNewDTO) {
+    public ResponseEntity<String> addNewContact(@Valid @RequestBody ContactNewDTO contactNewDTO) {
         return contactService.validateAndSave(contactNewDTO);
+    }
+
+    @PutMapping("/{contactId}")
+    public ResponseEntity<String> updateContact(@PathVariable Long contactId,@Valid @RequestBody ContactNewDTO contactNewDTO) {
+        return contactService.validateAndUpdate(contactId, contactNewDTO);
     }
 }
