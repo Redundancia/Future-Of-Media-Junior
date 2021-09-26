@@ -11,6 +11,7 @@ import hu.futureofmedia.task.contactsapi.entities.contact.Status;
 import hu.futureofmedia.task.contactsapi.repositories.CompanyRepository;
 import hu.futureofmedia.task.contactsapi.repositories.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -69,6 +70,7 @@ public class ContactService {
         contactRepository.save(contactToAdd);
         return returnResponse;
     }
+
     //TODO maybe move this to UTIL?
     private boolean isContactPhoneNumberValid(String phoneNumber) {
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
@@ -130,5 +132,23 @@ public class ContactService {
 
         contactRepository.save(contact);
         return returnResponse;
+    }
+
+    //TODO maybe INACTIVE is a better for status
+    public ResponseEntity<String> deleteContact(Long contactId) {
+        Optional<Contact> contactOptional = contactRepository.findById(contactId);
+        if (contactOptional.isEmpty()) {
+            return new ResponseEntity<>("Contact to delete doesn't exist", HttpStatus.OK);
+        }
+        if (contactOptional.get().getStatus() == Status.DELETED) {
+            return new ResponseEntity<>("Contact has been deleted already", HttpStatus.OK);
+        }
+        try {
+            contactOptional.get().setStatus(Status.DELETED);
+            contactRepository.save(contactOptional.get());
+            return new ResponseEntity<>( "Successfully deleted contact #" + contactId, HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity<>("Something went wrong while deleting", HttpStatus.BAD_REQUEST);
+        }
     }
 }
