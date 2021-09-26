@@ -131,18 +131,6 @@ class ContactControllerTest {
 
     @Test
     void newContact_InvalidNameThrowsError() throws Exception {
-        Company company2 = Company.builder().name("company2").build();
-
-        Contact contact2 = Contact.builder()
-                .firstName("Contact")
-                .lastName("Two")
-                .lastUpdatedDate(LocalDateTime.now())
-                .creationDate(LocalDateTime.now())
-                .company(company2)
-                .email("contact@two.hu")
-                .status(Status.ACTIVE)
-                .build();
-        Mockito.when(mockContactRepository.save(any())).thenReturn(contact2);
         mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -155,6 +143,19 @@ class ContactControllerTest {
 
     @Test
     void newContact_InvalidPhoneNumberThrowsError() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"00333333100000000000001\", \"email\": \"contacttwhu\", \"comment\": \"Lori\"}"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+
+    }
+
+    @Test
+    void updateContact_ValidFieldsReturnOkStatus() throws Exception {
         Company company2 = Company.builder().name("company2").build();
         Contact contact1 = Contact.builder()
                 .firstName("Contact")
@@ -164,15 +165,18 @@ class ContactControllerTest {
                 .company(company2)
                 .email("contact@two.hu")
                 .status(Status.ACTIVE)
+                .phoneNumber("+36305322222")
+                .comment("lorem ipsum")
                 .build();
-        mockContactRepository.save(contact1);
-        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+
+        Mockito.when(mockContactRepository.findById(any())).thenReturn(Optional.ofNullable(contact1));
+        mockMvc.perform(MockMvcRequestBuilders.put("/contact/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
-                                "\"phoneNumber\": \"00333333100000000000001\", \"email\": \"contacttwhu\", \"comment\": \"Lori\"}"))
+                                "\"phoneNumber\": \"+36305322222\", \"email\": \"contact@tw.hu\", \"comment\": \"Lori\"}"))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
 
 
     }
