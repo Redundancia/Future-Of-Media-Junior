@@ -206,4 +206,32 @@ class ContactControllerTest {
 
 
     }
+
+    //TODO how to check if actual data was updated, we don't test that?
+    @Test
+    void updateContact_ValidInputUpdatesData() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+        Contact contact1 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.ACTIVE)
+                .phoneNumber("+36305322222")
+                .comment("lorem ipsum")
+                .build();
+
+        Mockito.when(mockContactRepository.findById(any())).thenReturn(Optional.ofNullable(contact1));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/contact/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"+36305322222\", \"email\": \"contact@tw.hu\", \"comment\": \"Lori\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
 }
