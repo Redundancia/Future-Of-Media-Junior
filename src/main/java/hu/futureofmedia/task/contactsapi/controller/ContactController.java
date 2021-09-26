@@ -46,4 +46,9 @@ public class ContactController {
     public ResponseEntity<String> updateContact(@PathVariable Long contactId,@Valid @RequestBody ContactNewDTO contactNewDTO) {
         return contactService.validateAndUpdate(contactId, contactNewDTO);
     }
+
+    @DeleteMapping("/{contactId}")
+    public ResponseEntity<String> deleteContact(@PathVariable Long contactId) {
+        return contactService.deleteContact(contactId);
+    }
 }

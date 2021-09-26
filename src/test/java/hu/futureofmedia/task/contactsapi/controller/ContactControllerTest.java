@@ -234,4 +234,58 @@ class ContactControllerTest {
                 .andExpect(status().isOk());
 
     }
+
+    @Test
+    void deleteContact_throwsErrorWithInvalidId() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/contact/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("Contact to delete doesn't exist"));
+    }
+
+    @Test
+    void deleteContact_throwsErrorWithAlreadyDeletedStatus() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+        Contact contact1 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.DELETED)
+                .phoneNumber("+36305322222")
+                .comment("lorem ipsum")
+                .build();
+        Mockito.when(mockContactRepository.findById(any())).thenReturn(Optional.ofNullable(contact1));
+
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/contact/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("Contact has been deleted already"));
+    }
+
+    @Test
+    void deleteContact_StatusOKWithValid() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+        Contact contact1 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.ACTIVE)
+                .phoneNumber("+36305322222")
+                .comment("lorem ipsum")
+                .build();
+        Mockito.when(mockContactRepository.findById(any())).thenReturn(Optional.ofNullable(contact1));
+
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/contact/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("Successfully deleted contact #1"));
+    }
 }
