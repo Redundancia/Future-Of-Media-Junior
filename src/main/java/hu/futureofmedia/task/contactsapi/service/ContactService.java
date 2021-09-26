@@ -1,5 +1,8 @@
 package hu.futureofmedia.task.contactsapi.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import hu.futureofmedia.task.contactsapi.entities.Company;
 import hu.futureofmedia.task.contactsapi.entities.contact.Contact;
 import hu.futureofmedia.task.contactsapi.entities.contact.ContactFindAllActiveDTO;
@@ -48,20 +51,19 @@ public class ContactService {
         return contactRepository.findById(Long.parseLong(contactId));
     }
 
-    public ResponseEntity<String> validateAndSave(@RequestBody ContactNewDTO contactNewDTO) {
+    public ResponseEntity<String> validateAndSave(@RequestBody ContactNewDTO contactNewDTO)  {
         Optional<Company> contactCompany = companyRepository.findById(contactNewDTO.getCompanyId());
-        if (contactCompany.isEmpty()) {
+
+        if (isContactCompanyValid(contactCompany)) {
             return new ResponseEntity<>("Invalid company input", HttpStatus.BAD_REQUEST);
         }
+
         if (contactNewDTO.getPhoneNumber() != null){
-            String regex = "^\\+?\\d{10,14}$";
-            String text = contactNewDTO.getPhoneNumber();
-            Pattern pt = Pattern.compile(regex);
-            Matcher matcher = pt.matcher(text);
-            if (!matcher.matches()) {
+            if (!isContactPhoneNumberValid(contactNewDTO.getPhoneNumber())) {
                 return new ResponseEntity<>("Invalid phone number, try E-164 format", HttpStatus.BAD_REQUEST);
             }
         }
+
         if (contactNewDTO.getFirstName() == null) {
             return new ResponseEntity<>("Invalid name", HttpStatus.BAD_REQUEST);
         }
@@ -81,6 +83,30 @@ public class ContactService {
                 .build();
         Contact newContact = contactRepository.save(contactToAdd);
         return ResponseEntity.ok("Valid contact");
+    }
+
+    private boolean isContactPhoneNumberValid(String phoneNumber) {
+        String regex = "^\\+?\\d{10,14}$";
+        Pattern pt = Pattern.compile(regex);
+        Matcher matcher = pt.matcher(phoneNumber);
+        if (!matcher.matches()) {
+            return false;
+        }
+        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+        try {
+            Phonenumber.PhoneNumber phoneNumber2 = phoneNumberUtil.parse(phoneNumber,
+                    Phonenumber.PhoneNumber.CountryCodeSource.UNSPECIFIED.name());
+            if (!phoneNumberUtil.isValidNumber(phoneNumber2)) {
+                return false;
+            }
+        } catch (NumberParseException numberParseException) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isContactCompanyValid(Optional<Company> contactCompany) {
+        return contactCompany.isEmpty();
     }
 
 }

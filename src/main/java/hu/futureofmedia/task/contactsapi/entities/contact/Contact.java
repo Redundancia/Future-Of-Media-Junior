@@ -25,9 +25,8 @@ public class Contact {
     @Column(nullable = false)
     private String lastName;
 
-    //regex if you want different restriction
     @Email
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String phoneNumber;
