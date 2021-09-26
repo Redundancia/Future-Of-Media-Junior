@@ -155,6 +155,32 @@ class ContactControllerTest {
     }
 
     @Test
+    void newContact_InvalidEmailThrowsError() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"+36305322222\", \"email\": \"cottwhu\", \"comment\": \"Lori\"}"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+
+    }
+
+    @Test
+    void newContact_ValidFieldsReturnOkStatus() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"+36305322222\", \"email\": \"contact@tw.hu\", \"comment\": \"Lori\"}"))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+
+    }
+
+    @Test
     void updateContact_ValidFieldsReturnOkStatus() throws Exception {
         Company company2 = Company.builder().name("company2").build();
         Contact contact1 = Contact.builder()
