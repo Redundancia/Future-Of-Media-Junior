@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -124,6 +126,54 @@ class ContactControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/contact/{id}", "2"))
                 .andDo(print())
                 .andExpect(jsonPath("$").doesNotExist());
+
+    }
+
+    @Test
+    void newContact_InvalidNameThrowsError() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+
+        Contact contact2 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.ACTIVE)
+                .build();
+        Mockito.when(mockContactRepository.save(any())).thenReturn(contact2);
+        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"00333333101\", \"email\": \"1000asfasf@afaf.hu\", \"comment\": \"Lori\"}"))
+                .andExpect(status().isBadRequest());
+
+
+    }
+
+    @Test
+    void newContact_InvalidPhoneNumberThrowsError() throws Exception {
+        Company company2 = Company.builder().name("company2").build();
+        Contact contact1 = Contact.builder()
+                .firstName("Contact")
+                .lastName("Two")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .company(company2)
+                .email("contact@two.hu")
+                .status(Status.ACTIVE)
+                .build();
+        mockContactRepository.save(contact1);
+        mockMvc.perform(MockMvcRequestBuilders.post("/contact/new")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\": \"lol\", \"lastName\": \"two\", \"companyId\": \"1\", " +
+                                "\"phoneNumber\": \"00333333100000000000001\", \"email\": \"contacttwhu\", \"comment\": \"Lori\"}"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
 
     }
 }
