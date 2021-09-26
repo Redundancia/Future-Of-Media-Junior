@@ -70,4 +70,28 @@ public class ContactRepositoryTest {
 
         assertThrows(ConstraintViolationException.class, () -> contactRepository.save(mattiaCorvino));
     }
+
+    @Test
+    public void exceptionThrown_addContactWithNotUniqueEmail() {
+        Contact mattiaCorvino = Contact.builder()
+                .firstName("Mátyás")
+                .lastName("Hunyadi")
+                .email("matyas@king.hu")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .status(Status.ACTIVE)
+                .build();
+
+        Contact matthias = Contact.builder()
+                .firstName("Mátyás")
+                .lastName("Hunyadi")
+                .email("matyas@king.hu")
+                .lastUpdatedDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now())
+                .status(Status.ACTIVE)
+                .build();
+
+        contactRepository.save(matthias);
+        assertThrows(DataIntegrityViolationException.class, () -> contactRepository.save(mattiaCorvino));
+    }
 }
