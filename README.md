@@ -22,6 +22,13 @@ Logok olvasása:
 `docker-compose logs -f database`  
 `docker-compose logs -f mailhog`
 
+## API documentation
+
+Swagger ui: http://localhost:8080/swagger-ui.html#/
+
+JSON: http://localhost:8080/v2/api-docs
+
+
 ## Adatbázis
 
 Adatbázisként PostgreSQL került beállításra. A konténer nem került beállításra perzisztens volume, így a konténer
